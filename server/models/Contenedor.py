@@ -1,10 +1,11 @@
-class HumedadDAO:
-    # conn
+from sqlalchemy import text
+
+class ContenedorDAO:
     def __init__(self, conn):
         self.conn = conn
         
-    def insert(self, humedadActual, horaDeMedicion):
-        query = f"INSERT INTO Humedad (humedadActual, horaDeMedicion) VALUES ({humedadActual}, '{horaDeMedicion}');"
+    def insert(self, estado):
+        query = f"INSERT INTO contenedor (estado) VALUES ('{estado}');"
         
         try:
             with self.conn.connect() as connection:
@@ -15,11 +16,11 @@ class HumedadDAO:
                 return inserted_id
             
         except Exception as e:
-            print(e, "Error en insert de HumedadDAO")
+            print(e, "Error en insert de ContenedorDAO")
             
         
-    def getById(self, idHumedad):
-        query = f"SELECT * FROM Humedad WHERE idHumedad = {idHumedad};"
+    def getById(self, idContenedor):
+        query = f"SELECT * FROM contenedor WHERE idContenedor = {idContenedor};"
         try:
             with self.conn.connect() as connection:
                 result = connection.execute(text(query)).fetchone()
@@ -27,25 +28,16 @@ class HumedadDAO:
                 return result_dict
             
         except Exception as e:
-            print(e, "Error en getById de HumedadDAO")
+            print(e, "Error en getById de ContenedorDAO")
     
     def getAll(self):
-        query = "SELECT * FROM Humedad;"
+        query = "SELECT * FROM contenedor;"
         try:
             with self.conn.connect() as connection:
                 result = connection.execute(text(query)).fetchall()
                 result_list = [dict(row._mapping.items()) for row in result]
                 return result_list
         except Exception as e:
-            print(e, "Error en getAll de HumedadDAO")
+            print(e, "Error en getAll de ContenedorDAO")
     
-    def getHumedadActual(self):
-        query = "SELECT humedadActual FROM Humedad ORDER BY idHumedad DESC LIMIT 1;"
-        try:
-            with self.conn.connect() as connection:
-                result = connection.execute(text(query)).fetchone()
-                result_dict = dict(result._mapping.items()) if result else None
-                return result_dict
-        except Exception as e:
-            print(e, "Error en getHumedadActual de HumedadDAO")
     

@@ -1,23 +1,21 @@
 from sqlalchemy import text
-import datetime
 
 class SistemaDAO:
     def __init__(self, conn):
         self.conn = conn
-        
-    def insert(self, horaDeEncendido, horaDeApagado):
-        query = f"INSERT INTO sistema (horaDeEncendido, horaDeApagado) VALUES ('{horaDeEncendido}', '{horaDeApagado}');"
+            
+    def insert(self, estado):
+        query = f"INSERT INTO sistema (estado) VALUES ('{estado}');"
         
         try:
             with self.conn.connect() as connection:
                 result_proxy = connection.execute(text(query))
                 inserted_id = result_proxy.lastrowid
                 connection.commit()
-               
-                return inserted_id
-        
+                return inserted_id        
         except Exception as e:
             print(e, "Error en insert de SistemaDAO")
+    
         
     def getById(self, idSistema):
         query = f"SELECT * FROM sistema WHERE idSistema = {idSistema};"

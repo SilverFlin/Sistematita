@@ -1,5 +1,5 @@
 from flask import Flask, request, redirect, url_for, flash, jsonify
-from models.index import BombaDAO, HumedadDAO, PlantaDAO, SistemaDAO
+from models.index import BombaDAO, ContenedorDAO, PlantaDAO, SistemaDAO
 
 
 
@@ -16,54 +16,65 @@ def index():
 @app.route('/bomba', methods=['GET', 'POST'])
 def bomba():
     if request.method == 'POST':
-        horaDeLlenado = request.form['horaDeLlenado']
-        cantidadDeAgua = request.form['cantidadDeAgua']
-        return BombaDAO.insert(horaDeLlenado, cantidadDeAgua)
+        duracionEnSegundos = request.json['duracionEnSegundos']        
+        inserted_id = BombaDAO.insert(duracionEnSegundos)
+
+        return jsonify({"message": "Record inserted successfully", "id": inserted_id})
         
     elif request.method == 'GET':
-        return BombaDAO.getAll()
+        result = BombaDAO.getAll()
+        if result is not None:
+            return jsonify(result)
+        else:
+            return jsonify({"error": "No data found"}), 404
     
 @app.route('/bomba/<int:idBomba>', methods=['GET'])
 def bombaById(idBomba):
-    return BombaDAO.getById(idBomba)
+    result = BombaDAO.getById(idBomba)
 
-@app.route('/humedad', methods=['GET', 'POST'])
-def humedad():
-    if request.method == 'POST':
-        humedadActual = request.form['humedadActual']
-        horaDeMedicion = request.form['horaDeMedicion']
-        return HumedadDAO.insert(humedadActual, horaDeMedicion)
-        
-    elif request.method == 'GET':
-        return HumedadDAO.getAll()
-    
-@app.route('/humedad/<int:idHumedad>', methods=['GET'])
-def humedadById(idHumedad):
-    return HumedadDAO.getById(idHumedad)
+    if result is not None:
+        return jsonify(result)
+    else:
+        return jsonify({"error": "No data found"}), 404
 
 @app.route('/planta', methods=['GET', 'POST'])
 def planta():
     if request.method == 'POST':
-        nombre = request.form['nombre']
-        return PlantaDAO.insert(nombre)
+        estadoHumedad = request.json['estadoHumedad']
+        
+        inserted_id = PlantaDAO.insert(estadoHumedad)
+
+        return jsonify({"message": "Record inserted successfully", "id": inserted_id})
         
     elif request.method == 'GET':
-        return PlantaDAO.getAll()
-    
+        result = PlantaDAO.getAll()
+        if result is not None:
+            return jsonify(result)
+        else:
+            return jsonify({"error": "No data found"}), 404 
+
+        
 @app.route('/planta/<int:idPlanta>', methods=['GET'])
 def plantaById(idPlanta):
-    return PlantaDAO.getById(idPlanta)
+    result = PlantaDAO.getById(idPlanta)
+
+    if result is not None:
+        return jsonify(result)
+    else:
+        return jsonify({"error": "No data found"}), 404
 
 @app.route('/sistema', methods=['GET', 'POST'])
 def sistema():
     if request.method == 'POST':
-        hora_de_encendido = request.form['horaDeEncendido']
-        hora_de_apagado = request.form['horaDeApagado']
+        estado = request.json['estado']
         
-        inserted_id = SistemaDAO.insert(hora_de_encendido, hora_de_apagado)
+        inserted_id = SistemaDAO.insert(estado)
+        
+        if inserted_id is not None:
+            return jsonify({"message": "Record inserted successfully", "id": inserted_id})
+        else:
+            return jsonify({"error": "No data found"}), 404
 
-        # Returning a JSON response
-        return jsonify({"message": "Record inserted successfully", "id": inserted_id})    
     elif request.method == 'GET':
         result = SistemaDAO.getAll()
         if result is not None:
@@ -78,16 +89,23 @@ def sistemaById(idSistema):
     if result is not None:
         return jsonify(result)
     else:
-        return jsonify({"error": "No data found"}), 404 
+        return jsonify({"error": "No data found"}), 404
+    
+@app.route('/contenedor', methods=['GET', 'POST'])
+def contenedor():
+    if request.method == 'POST':
+        estado = request.json['estado']
+        
+        inserted_id = ContenedorDAO.insert(estado)
 
-
-
-
-
-
-
-
-
+        return jsonify({"message": "Record inserted successfully", "id": inserted_id})
+        
+    elif request.method == 'GET':
+        result = ContenedorDAO.getAll()
+        if result is not None:
+            return jsonify(result)
+        else:
+            return jsonify({"error": "No data found"}), 404
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,18 +1,22 @@
+from sqlalchemy import text
+
 class BombaDAO:
     # conn
     def __init__(self, conn):
         self.conn = conn
         
-    def insert(self, horaDeLlenado, cantidadDeAgua):
-        query = f"INSERT INTO Bomba (horaDeLlenado, cantidadDeAgua) VALUES ('{horaDeLlenado}', {cantidadDeAgua});"
+    # insert segun db.__init__.py
+    def insert(self, duracionEnSegundos):
+        query = f"INSERT INTO Bomba (duracionEnSegundos) VALUES ('{duracionEnSegundos}');"
         
         try:
             with self.conn.connect() as connection:
                 result_proxy = connection.execute(text(query))
                 inserted_id = result_proxy.lastrowid
                 connection.commit()
-               
+                
                 return inserted_id
+    
             
         except Exception as e:
             print(e, "Error en insert de BombaDAO")
