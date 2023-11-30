@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, url_for, flash
+from flask import Flask, request, redirect, url_for, flash, jsonify
 from models.index import BombaDAO, HumedadDAO, PlantaDAO, SistemaDAO
 
 
@@ -57,16 +57,29 @@ def plantaById(idPlanta):
 @app.route('/sistema', methods=['GET', 'POST'])
 def sistema():
     if request.method == 'POST':
-        horaDeEncendido = request.form['horaDeEncendido']
-        horaDeApagado = request.form['horaDeApagado']
-        return SistemaDAO.insert(horaDeEncendido, horaDeApagado)
+        hora_de_encendido = request.form['horaDeEncendido']
+        hora_de_apagado = request.form['horaDeApagado']
         
+        inserted_id = SistemaDAO.insert(hora_de_encendido, hora_de_apagado)
+
+        # Returning a JSON response
+        return jsonify({"message": "Record inserted successfully", "id": inserted_id})    
     elif request.method == 'GET':
-        return SistemaDAO.getAll()
+        result = SistemaDAO.getAll()
+        if result is not None:
+            return jsonify(result)
+        else:
+            return jsonify({"error": "No data found"}), 404 
     
 @app.route('/sistema/<int:idSistema>', methods=['GET'])
 def sistemaById(idSistema):
-    return SistemaDAO.getById(idSistema)
+    result = SistemaDAO.getById(idSistema)
+
+    if result is not None:
+        return jsonify(result)
+    else:
+        return jsonify({"error": "No data found"}), 404 
+
 
 
 

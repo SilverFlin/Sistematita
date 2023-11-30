@@ -5,10 +5,36 @@ class PlantaDAO:
     # insert, getbyid, getall
     
     def insert(self, nombre, idSistema, idBomba):
-        self.conn.execute("INSERT INTO Planta (nombre, idSistema, idBomba) VALUES (%s, %s, %s)", (nombre, idSistema, idBomba))
+        query = f"INSERT INTO Planta (nombre, idSistema, idBomba) VALUES ('{nombre}', {idSistema}, {idBomba});"
+        
+        try:
+            with self.conn.connect() as connection:
+                result_proxy = connection.execute(text(query))
+                inserted_id = result_proxy.lastrowid
+                connection.commit()
+               
+                return inserted_id
+        
+        except Exception as e:
+            print(e, "Error en insert de PlantaDAO")
         
     def getById(self, idPlanta):
-        return self.conn.execute("SELECT * FROM Planta WHERE idPlanta = %s", (idPlanta)).fetchone()
+        query = f"SELECT * FROM Planta WHERE idPlanta = {idPlanta};"
+        try:
+            with self.conn.connect() as connection:
+                result = connection.execute(text(query)).fetchone()
+                result_dict = dict(result._mapping.items()) if result else None
+                return result_dict
+
+        except Exception as e:
+            print(e, "Error en getById de PlantaDAO")
     
     def getAll(self):
-        return self.conn.execute("SELECT * FROM Planta").fetchall()
+        query = "SELECT * FROM Planta;"
+        try:
+            with self.conn.connect() as connection:
+                result = connection.execute(text(query)).fetchall()
+                result_list = [dict(row._mapping.items()) for row in result]
+                return result_list
+        except Exception as e:
+            print(e, "Error en getAll de PlantaDAO")

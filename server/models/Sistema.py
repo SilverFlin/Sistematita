@@ -6,31 +6,39 @@ class SistemaDAO:
         self.conn = conn
         
     def insert(self, horaDeEncendido, horaDeApagado):
-        # string template
         query = f"INSERT INTO sistema (horaDeEncendido, horaDeApagado) VALUES ('{horaDeEncendido}', '{horaDeApagado}');"
-        # query = "INSERT INTO sistema (horaDeEncendido, horaDeApagado) VALUES (:horaDeEncendido, :horaDeApagado);"
         
         try:
-            return self.conn.execute(text(query))
-            # return self.conn.execute("SELECT * FROM sistema ORDER BY idSistema DESC LIMIT 1").fetchone()
+            with self.conn.connect() as connection:
+                result_proxy = connection.execute(text(query))
+                inserted_id = result_proxy.lastrowid
+                connection.commit()
+               
+                return inserted_id
+        
         except Exception as e:
             print(e, "Error en insert de SistemaDAO")
-            return 'Error en insert de SistemaDAO'
         
     def getById(self, idSistema):
-        query = "SELECT * FROM sistema WHERE idSistema = :idSistema;"
+        query = f"SELECT * FROM sistema WHERE idSistema = {idSistema};"
         try:
-            return self.conn.execute(text(query), idSistema=idSistema).fetchone()
+            with self.conn.connect() as connection:
+                result = connection.execute(text(query)).fetchone()
+                result_dict = dict(result._mapping.items()) if result else None
+                return result_dict
+
         except Exception as e:
             print(e, "Error en getById de SistemaDAO")
-            return 'Error en getById de SistemaDAO'
     def getAll(self):
         query = "SELECT * FROM sistema;"
         try:
-            return self.conn.execute(text(query)).fetchall()
+            with self.conn.connect() as connection:
+                result = connection.execute(text(query)).fetchall()
+                result_list = [dict(row._mapping.items()) for row in result]
+                return result_list
         except Exception as e:
             print(e, "Error en getAll de SistemaDAO")
-            return 'Error en getAll de SistemaDAO'
+
     
     
     
