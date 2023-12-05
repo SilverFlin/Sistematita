@@ -57,6 +57,8 @@ void setup()
   Serial.print("Test");
   sendPostRequest("Encendido");
   sendPostPlantaRequest("Baja");
+  sendPostBombaRequest("200");
+  sendPostContenedorRequest("lleno");
 }
 
 void connectToWiFi()
@@ -119,6 +121,71 @@ void sendPostPlantaRequest(const String &estadoHumedad)
   // Create a JSON object
   DynamicJsonDocument jsonDoc(200);
   jsonDoc["estadoHumedad"] = estadoHumedad;
+
+  // Convert the JSON object to a string
+  String jsonString;
+  serializeJson(jsonDoc, jsonString);
+
+  // Start the HTTPClient
+  http.begin(url);
+
+  // Set the content type to JSON
+  http.addHeader("Content-Type", "application/json");
+
+  // Send the POST request
+  int httpResponseCode = http.POST(jsonString);
+
+  // Print the response code for debugging
+  Serial.print("HTTP Response code: ");
+  Serial.println(httpResponseCode);
+
+  // End the request
+  http.end();
+}
+
+void sendPostBombaRequest(const String &duracionEnSegundos)
+{
+  HTTPClient http;
+
+  // Your server URL
+  String url = String(SERVER_URL) + "/bomba";
+  Serial.print(url);
+
+  // Create a JSON object
+  DynamicJsonDocument jsonDoc(200);
+  jsonDoc["duracionEnSegundos"] = duracionEnSegundos;
+
+  // Convert the JSON object to a string
+  String jsonString;
+  serializeJson(jsonDoc, jsonString);
+
+  // Start the HTTPClient
+  http.begin(url);
+
+  // Set the content type to JSON
+  http.addHeader("Content-Type", "application/json");
+
+  // Send the POST request
+  int httpResponseCode = http.POST(jsonString);
+
+  // Print the response code for debugging
+  Serial.print("HTTP Response code: ");
+  Serial.println(httpResponseCode);
+
+  // End the request
+  http.end();
+}
+void sendPostContenedorRequest(const String &estado)
+{
+  HTTPClient http;
+
+  // Your server URL
+  String url = String(SERVER_URL) + "/contenedor";
+  Serial.print(url);
+
+  // Create a JSON object
+  DynamicJsonDocument jsonDoc(200);
+  jsonDoc["estado"] = estado;
 
   // Convert the JSON object to a string
   String jsonString;
