@@ -35,7 +35,7 @@ char auth[] = "GwQJiB-WDTRKg5tneK2WwmPOLvEDh6Z7";
 char ssid[] = "INFINITUMA39E_2.4";
 char pass[] = "DA6EqvGDK8";
 
-#define SERVER_URL "http://192.168.100.47:5000"
+#define SERVER_URL "http://192.168.1.150:5000"
 
 int obtenDistancia();
 
@@ -56,6 +56,7 @@ void setup()
   timer.setInterval(1000L, medirNivelAgua);
   Serial.print("Test");
   sendPostRequest("Encendido");
+  sendPostPlantaRequest("Baja");
 }
 
 void connectToWiFi()
@@ -79,11 +80,45 @@ void sendPostRequest(const String &estado)
   HTTPClient http;
 
   // Your server URL
-  String url = SERVER_URL;
+  String url = String(SERVER_URL) + "/sistema";
+  Serial.print(url);
 
   // Create a JSON object
   DynamicJsonDocument jsonDoc(200);
   jsonDoc["estado"] = estado;
+
+  // Convert the JSON object to a string
+  String jsonString;
+  serializeJson(jsonDoc, jsonString);
+
+  // Start the HTTPClient
+  http.begin(url);
+
+  // Set the content type to JSON
+  http.addHeader("Content-Type", "application/json");
+
+  // Send the POST request
+  int httpResponseCode = http.POST(jsonString);
+
+  // Print the response code for debugging
+  Serial.print("HTTP Response code: ");
+  Serial.println(httpResponseCode);
+
+  // End the request
+  http.end();
+}
+
+void sendPostPlantaRequest(const String &estadoHumedad)
+{
+  HTTPClient http;
+
+  // Your server URL
+  String url = String(SERVER_URL) + "/planta";
+  Serial.print(url);
+
+  // Create a JSON object
+  DynamicJsonDocument jsonDoc(200);
+  jsonDoc["estadoHumedad"] = estadoHumedad;
 
   // Convert the JSON object to a string
   String jsonString;
@@ -113,7 +148,7 @@ void soilMoisture()
   value = map(value, 0, 4095, 0, 100);
   value = (value - 100) * -1;
   Blynk.virtualWrite(V0, value);
-  Serial.println(value);
+ // Serial.println(value);
 }
 
 void medirNivelAgua()
@@ -127,11 +162,11 @@ void medirNivelAgua()
   {
     // Blynk.email("carmen.hernandez240210@potros.itson.edu.mx","Alerta","Tanque de agua bajo");
     Blynk.logEvent("alerta_agua", "El contenedor de agua, se esta quedando vacío!!! Rellénalo pronto :)");
-    Serial.print("Rellenar tanque");
+   // Serial.print("Rellenar tanque");
   }
   Blynk.virtualWrite(V2, distancia);
-  Serial.println(distancia);
-  Serial.print("< Echo");
+  //Serial.println(distancia);
+  //Serial.print("< Echo");
 }
 
 // Get the button value
@@ -154,5 +189,4 @@ void loop()
   medirNivelAgua();
   Blynk.run(); // Run the Blynk library
   timer.run();
-  // delay(200);
 }
